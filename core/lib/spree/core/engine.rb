@@ -29,7 +29,8 @@ module Spree
                                :analytics_events,
                                :analytics_event_handlers,
                                :integrations,
-                               :subscribers)
+                               :subscribers,
+                               :authentication_strategies)
       SpreeCalculators = Struct.new(:shipping_methods, :tax_rates, :promotion_actions_create_adjustments, :promotion_actions_create_item_adjustments)
       PromoEnvironment = Struct.new(:rules, :actions)
       PricingEnvironment = Struct.new(:rules)
@@ -289,6 +290,7 @@ module Spree
           Spree::Addresses::PhoneValidator
         ]
 
+
         # Attach event log subscriber if enabled
         if Spree::Config.events_log_enabled
           Spree::EventLogSubscriber.attach_to_notifications
@@ -301,6 +303,11 @@ module Spree
           Spree::ReportSubscriber,
           Spree::InvitationEmailSubscriber
         ]
+
+        Rails.application.config.spree.authentication_strategies = {
+          email: 'Spree::Authentication::Strategies::EmailPasswordStrategy',
+          google: 'Spree::Authentication::Strategies::GoogleStrategy'
+        }
       end
 
       initializer 'spree.promo.register.promotions.actions' do |app|
