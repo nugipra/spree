@@ -1,4 +1,7 @@
 require 'spree/api'
+require 'alba'
+require 'ar_lazy_preload'
 require 'jsonapi/serializer'
 require 'doorkeeper'
+require 'oj'
 require 'pagy'

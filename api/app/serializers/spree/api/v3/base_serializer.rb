@@ -2,102 +2,55 @@ module Spree
   module Api
     module V3
       class BaseSerializer
-        attr_reader :resource, :context, :includes
+        include Alba::Resource
 
-        def initialize(resource, context = {})
-          @resource = resource
-          @context = context
-          @includes = Array(context[:includes] || [])
-        end
-
-        # Main serialization method
-        def as_json
-          attributes
-        end
-
-        protected
-
-        # Override in subclasses to define attributes
-        def attributes
-          {
-            id: resource.id
-          }
-        end
-
-        # Check if an association should be included
-        # @param association [String, Symbol] The association name
-        # @return [Boolean]
-        def include?(association)
-          includes.include?(association.to_s)
-        end
-
-        # Get nested includes for a parent association
-        # @param parent [String, Symbol] The parent association
-        # @return [Array<String>]
-        def nested_includes_for(parent)
-          prefix = "#{parent}."
-          includes
-            .select { |inc| inc.start_with?(prefix) }
-            .map { |inc| inc.sub(prefix, '') }
-        end
-
-        # Context for nested serializers
-        # @param parent [String, Symbol] The parent association name
-        # @return [Hash]
-        def nested_context(parent = nil)
-          ctx = context.dup
-          ctx[:includes] = parent ? nested_includes_for(parent) : []
-          ctx
-        end
-
-        # Context helpers
-        def currency
-          context[:currency]
-        end
-
+        # Context accessors
         def store
-          context[:store]
+          params[:store]
+        end
+
+        def currency
+          params[:currency]
         end
 
         def user
-          context[:user]
+          params[:user]
         end
 
         def locale
-          context[:locale]
+          params[:locale]
         end
 
-        # Price helpers
-        def money_to_hash(money)
-          return nil unless money
-
-          {
-            amount: money.to_f,
-            currency: money.currency.iso_code,
-            formatted: money.to_s
-          }
+        def includes
+          @includes ||= Array(params[:includes] || [])
         end
 
-        def price_in_currency(priceable)
-          return nil unless priceable.respond_to?(:price_in)
-
-          priceable.price_in(currency)
+        # Check if an association should be included
+        def include?(name)
+          includes.include?(name.to_s)
         end
 
-        # Image URL helper
-        def image_url(image, size: nil)
-          return nil unless image&.attached?
-
-          url_helpers.cdn_image_url(image.attachment)
+        # Get nested includes for a given parent
+        def nested_includes_for(parent)
+          prefix = "#{parent}."
+          includes.select { |i| i.start_with?(prefix) }.map { |i| i.sub(prefix, '') }
         end
 
-        def url_helpers
-          Rails.application.routes.url_helpers
+        # Build nested params for child serializers
+        def nested_params(parent = nil)
+          params.merge(includes: parent ? nested_includes_for(parent) : [])
         end
 
-        # Timestamp helper
-        def timestamp(time)
-          time&.iso8601
+        # Returns price for a variant using full Price List resolution
+        def price_for(variant, quantity: nil)
+          return nil unless variant.respond_to?(:price_for)
+
+          variant.price_for(
+            currency: currency,
+            store: store,
+            user: user,
+            quantity: quantity
+          )
         end
       end
     end
