@@ -22,10 +22,6 @@ module Spree
           product.available?
         end
 
-        attribute :currency do
-          currency
-        end
-
         attribute :price do |product|
           price_object(product)&.amount&.to_f
         end
@@ -52,9 +48,8 @@ module Spree
         # Conditional associations
         many :images,
              resource: Spree.api.v3_storefront_image_serializer,
-             if: proc { params[:includes]&.include?('images') } do |product|
-          product.variant_images
-        end
+             if: proc { params[:includes]&.include?('images') },
+             source: :variant_images
 
         many :variants,
              resource: Spree.api.v3_storefront_variant_serializer,
@@ -67,19 +62,19 @@ module Spree
         one :master_variant,
             key: :master_variant,
             resource: Spree.api.v3_storefront_variant_serializer,
-            if: proc { params[:includes]&.include?('master_variant') } do |product|
-          product.master
-        end
+            if: proc { params[:includes]&.include?('master_variant') },
+            source: :master
 
         many :option_types,
              resource: Spree.api.v3_storefront_option_type_serializer,
              if: proc { params[:includes]&.include?('option_types') }
 
         many :taxons,
+             proc { |taxons, params|
+               taxons.select { |t| t.taxonomy.store_id == params[:store].id}
+              },
              resource: Spree.api.v3_storefront_taxon_serializer,
-             if: proc { params[:includes]&.include?('taxons') } do |product|
-          product.taxons_for_store(params[:store])
-        end
+             if: proc { params[:includes]&.include?('taxons') }
 
         private
 

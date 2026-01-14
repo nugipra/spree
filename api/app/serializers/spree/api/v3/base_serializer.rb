@@ -5,19 +5,19 @@ module Spree
         include Alba::Resource
 
         # Context accessors
-        def store
+        def current_store
           params[:store]
         end
 
-        def currency
+        def current_currency
           params[:currency]
         end
 
-        def user
+        def current_user
           params[:user]
         end
 
-        def locale
+        def current_locale
           params[:locale]
         end
 
@@ -46,11 +46,17 @@ module Spree
           return nil unless variant.respond_to?(:price_for)
 
           variant.price_for(
-            currency: currency,
-            store: store,
-            user: user,
+            currency: current_currency,
+            store: current_store,
+            user: current_user,
             quantity: quantity
           )
+        end
+
+        def image_url_for(image)
+          return nil unless image&.attachment&.attached?
+
+          Rails.application.routes.url_helpers.cdn_image_url(image.attachment)
         end
       end
     end

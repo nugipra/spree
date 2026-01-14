@@ -23,10 +23,6 @@ module Spree
           image_url_for(taxon.square_image)
         end
 
-        attribute :has_products do |taxon|
-          taxon.active_products_with_descendants.exists?
-        end
-
         attribute :is_root do |taxon|
           taxon.root?
         end
@@ -51,14 +47,6 @@ module Spree
         one :taxonomy,
             resource: Spree.api.v3_storefront_taxonomy_serializer,
             if: proc { params[:includes]&.include?('taxonomy') }
-
-        private
-
-        def image_url_for(image)
-          return nil unless image&.attachment&.attached?
-
-          Rails.application.routes.url_helpers.cdn_image_url(image.attachment)
-        end
       end
     end
   end

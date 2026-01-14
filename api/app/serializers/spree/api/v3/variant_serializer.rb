@@ -32,10 +32,6 @@ module Spree
           variant.depth&.to_f
         end
 
-        attribute :currency do
-          currency
-        end
-
         attribute :price do |variant|
           price_object(variant)&.amount&.to_f
         end
@@ -63,10 +59,6 @@ module Spree
         many :option_values,
              resource: Spree.api.v3_storefront_option_value_serializer,
              if: proc { params[:includes]&.include?('option_values') }
-
-        one :product,
-            resource: Spree.api.v3_storefront_product_serializer,
-            if: proc { params[:includes]&.include?('product') }
 
         private
 
