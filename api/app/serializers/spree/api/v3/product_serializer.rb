@@ -26,6 +26,10 @@ module Spree
           price_object(product)&.amount&.to_f
         end
 
+        attribute :price_in_cents do |product|
+          price_object(product)&.display_amount&.amount_in_cents
+        end
+
         attribute :display_price do |product|
           price_object(product)&.display_price&.to_s
         end
@@ -34,11 +38,12 @@ module Spree
           price_object(product)&.compare_at_amount&.to_f
         end
 
-        attribute :display_compare_at_price do |product|
-          price = price_object(product)
-          next unless price&.compare_at_amount
+        attribute :compare_at_price_in_cents do |product|
+          price_object(product)&.display_compare_at_amount&.amount_in_cents if price_object(product)&.compare_at_amount&.present?
+        end
 
-          Spree::Money.new(price.compare_at_amount, currency: currency).to_s
+        attribute :display_compare_at_price do |product|
+          price_object(product)&.display_compare_at_amount&.to_s if price_object(product)&.compare_at_amount&.present?
         end
 
         attribute :tags do |product|
