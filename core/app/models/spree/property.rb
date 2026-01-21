@@ -1,7 +1,7 @@
 module Spree
   class Property < Spree::Base
     include Spree::FilterParam
-    include Metadata
+    include ::Spree::Metadata
 
     auto_strip_attributes :name, :presentation
 

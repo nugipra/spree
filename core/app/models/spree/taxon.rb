@@ -3,7 +3,7 @@ require 'stringex'
 
 module Spree
   class Taxon < Spree::Base
-    include Metadata
+    include ::Spree::Metadata
 
     extend FriendlyId
     friendly_id :permalink, slug_column: :permalink, use: :history

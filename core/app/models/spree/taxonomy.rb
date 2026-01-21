@@ -1,6 +1,6 @@
 module Spree
   class Taxonomy < Spree::Base
-    include Metadata
+    include ::Spree::Metadata
 
     acts_as_list
 

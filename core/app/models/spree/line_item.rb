@@ -1,6 +1,6 @@
 module Spree
   class LineItem < Spree::Base
-    include Metadata
+    include ::Spree::Metadata
 
     before_validation :ensure_valid_quantity
 

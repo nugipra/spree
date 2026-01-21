@@ -1,6 +1,6 @@
 module Spree
   class Prototype < Spree::Base
-    include Metadata
+    include ::Spree::Metadata
 
     has_many :property_prototypes, class_name: 'Spree::PropertyPrototype'
     has_many :properties, through: :property_prototypes, class_name: 'Spree::Property'
